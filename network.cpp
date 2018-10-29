@@ -11,25 +11,26 @@
 #include "network.h"
 #include "random.h"
 
-const double SEED = 4.875;    // valeur de la seed modifiable --> utile pour random_connect
-
 /**
-links.first : index du node1
- links.second : index du node auquel node1 est lié
+links.first :  index du node1
+links.second : index du node auquel node1 est lié
 **/
 
-void Network::resize(const size_t& newsize)           // V
+void Network::resize(const size_t &newsize)           // V
 {
     values.resize(newsize);
-    RNG.normal(values);
+    // RNG.normal(values);
+    std::vector<double> newVect(values);
+    RNG.normal(newVect);
+    values=newVect;
 }
 
 // erreur de conception : on ne teste que le premier lien de a et le premier lien de b
 // --> or les values peuvent avoir plusieurs liens, le premier n'est pas forcément avec
 // b et vice versa
-bool Network::add_link(const size_t& a, const size_t& b)        // V
+bool Network::add_link(const size_t &a, const size_t &b)        // V
 {
-    if(a==b or a>=(*this).size() or b>=(*this).size()) return false;
+    if(a==b or a>=values.size() or b>=values.size()) return false;
     
     for(auto const elt : links)
     {
@@ -38,8 +39,8 @@ bool Network::add_link(const size_t& a, const size_t& b)        // V
             return false;       // find if the link already exists
         }
     }
-    links.emplace(a,b);
-    links.emplace(b,a);
+    links.insert(std::pair<size_t, size_t>(a, b));
+    links.insert(std::pair<size_t, size_t>(b, a));
     return true;
 }
 
@@ -52,9 +53,10 @@ size_t Network::random_connect(const double& mean_deg)
     {
         size_t degree = RNG.poisson(mean_deg);
         
-        for(size_t j(0); j < degree; ++j, ++newlinks)
+        for(size_t j(0); j < degree; ++j)
         {
-            add_link(i, j*(j-1)*SEED);      // faux : utiliser shuffle
+            while( not add_link(i, RNG.uniform_double(0,(*this).size()))) continue;
+            ++newlinks;
         }
     }
     return newlinks;
@@ -92,8 +94,9 @@ size_t Network::size() const                        // V
 
 size_t Network::degree(const size_t& _n) const      // V
 {
-    std::vector<size_t> tmp(neighbors(_n));         // we could use too : return links.count(_n);
-    return tmp.size();
+    return links.count(_n);
+    // std::vector<size_t> tmp(this->neighbors(_n));
+    // return tmp.size();
 }
 
 double Network::value(const size_t& _n) const       // V
@@ -110,17 +113,32 @@ std::vector<double> Network::sorted_values() const // V
     return tmp;
 }
 
+
+std::vector<size_t> Network::neighbors(const size_t& _n) const  // V
+{
+    std::vector<size_t> linkednodes;
+    auto eql = links.equal_range(_n);
+    
+    for(auto it = eql.first; it != eql.second; ++it)
+    {
+        if(it->first == _n) linkednodes.push_back(it->second);
+    }
+    return linkednodes;
+}
+
+/**
 std::vector<size_t> Network::neighbors(const size_t& _n) const  // V
 {
     std::vector<size_t> linkednodes;
     
     for(auto it = links.begin(); it != links.end(); ++it)
     {
-        while((*it).first == _n)        // Les noeuds sont rangés par ordre de l'indice qu'ils ont.
+        while(it->first == _n)        // Les noeuds sont rangés par ordre de l'indice qu'ils ont.
         {                               // --> Ainsi on évite de faire des boucles surperflues.
-            linkednodes.push_back((*it).second);
+            linkednodes.push_back(it->second);
             ++it;
         }
     }
     return linkednodes;
 }
+*/
