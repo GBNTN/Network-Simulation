@@ -30,6 +30,13 @@ Another solution (_cleaner way_) :
 I used **gtest** to create test in order to test the good executions of the methods of network.h
 In order to have a good description of what do each methods, **Doxygen** was used.
 
+to create the file **Doxyfile**, you can (if you used  the 1st method above) :
+1. open terminal
+2. go in the directory where the program is
+3. tap the command : **_cmake._**
+4. then : **_make doc_**
+5. finally tap : **_doxygen -g_**
+
 
 
 
