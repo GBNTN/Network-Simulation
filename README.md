@@ -10,14 +10,14 @@ This program allows the user to launch simulations of a network of random nodes 
 I used Cmake, so the user need to follow the step :
 1. open terminal
 2. go in the directory where the program is
-3. tap the command : **_cmake._**
+3. tap the command : **_cmake ._**
 4. then : **_make_**
 
 At this step the user will have two executor file :
 * Networksimulation
 * testNetSim
  
- 5. the user can launch the execution by taping the comand : **./** <file to execute>
+ 5. the user can launch the execution by taping the comand : **./** file_to_execute
 
 Another solution (_cleaner way_) :
 1. create the folders : **build** and **src**
@@ -35,7 +35,7 @@ Another solution (_cleaner way_) :
 To create the file **Doxyfile**, you can (if you used  the 1st method above) :
 1. open terminal
 2. go in the directory where the program is
-3. tap the command : **_cmake._**
+3. tap the command : **_cmake ._**
 4. then : **_make doc_**
 5. finally tap : **_doxygen -g_**
 
