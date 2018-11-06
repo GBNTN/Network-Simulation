@@ -11,18 +11,10 @@
 #include "network.h"
 #include "random.h"
 
-/**
-links.first :  index du node1
-links.second : index du node auquel node1 est lié
-**/
-
 void Network::resize(const size_t &newsize)
 {
     values.resize(newsize);
-    // RNG.normal(values);
-    std::vector<double> newVect(values);
-    RNG.normal(newVect);
-    values=newVect;
+    RNG.normal(values);
 }
  
 bool Network::add_link(const size_t &a, const size_t &b)
@@ -52,21 +44,39 @@ bool Network::add_link(const size_t &a, const size_t &b)
 
 size_t Network::random_connect(const double& mean_deg)
 {
-    size_t newlinks(0);
     links.erase(links.begin(), links.end());
+    size_t newLinks(0);
+    std::vector<size_t> index;
     
-    for(size_t i(0); i < values.size(); ++i)
-    {
-        size_t degree = RNG.poisson(mean_deg);
-        
-        for(size_t j(0); j < degree; ++j)
+    
+    for (size_t i(0); i < this->size(); ++i) index.push_back(i);
+    
+    try {
+        for (size_t i(0); i< index.size(); ++i)
         {
-            while( not add_link(i, RNG.uniform_double(0,(*this).size()))) continue;
-            ++newlinks;
+            size_t degree(RNG.poisson(mean_deg));
+            if(degree > index.size()) throw std::runtime_error("Le nombre de lien est supérieur au nombre de nodes");
+            
+            RNG.shuffle(index);
+            size_t it(0);
+            
+            for(int n(0); n < degree; ++n)
+            {
+                while(not add_link(i,index[it]))
+                {
+                    ++it;
+                    continue;
+                }
+                newLinks++;
+            }
         }
     }
-    return newlinks;
-    
+    catch(std::runtime_error const& e)
+    {
+            std::cerr << "Error : " << e.what() << std::endl;
+            return 0;
+    }
+    return newLinks;
 }
 
 size_t Network::set_values(const std::vector<double>& newvalues)
